@@ -108,7 +108,11 @@ npm run cf:dev
 - **Build output directory**: `dist`  
 - **Node.js version**: `20`
 - **Functions compatibility date**: `2024-06-22`
-- **KV Binding**: `URL_MONITOR_KV` → KV Namespace (Functions 설정에서 추가)
+
+### 환경변수 및 KV 설정
+1. **KV Namespace 생성**: CloudFlare 대시보드에서 `URL_MONITOR_KV` 생성
+2. **Functions 바인딩**: Pages 설정에서 KV binding 추가
+3. **환경변수**: `GMAIL_APP_PASSWORD` 설정 (Production & Preview)
 
 ## 문제 해결
 

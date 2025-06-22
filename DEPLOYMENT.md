@@ -28,6 +28,13 @@
    - **Variable name**: `URL_MONITOR_KV`
    - **KV namespace**: 1단계에서 생성한 namespace 선택
 
+### 4. 환경변수 설정
+Settings > Environment variables에서:
+1. Production 탭에서 환경변수 추가:
+   - **GMAIL_APP_PASSWORD**: Gmail 앱 비밀번호
+2. Preview 탭에서도 동일하게 설정
+3. 변경사항 저장
+
 ### 4. 배포 완료
 - 자동으로 빌드되고 배포됩니다
 - 제공된 URL로 접속하여 테스트

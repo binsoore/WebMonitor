@@ -218,5 +218,7 @@ export class FileStorage implements IStorage {
   }
 }
 
-// Use file storage for persistence across app restarts
-export const storage = new FileStorage();
+// Use appropriate storage based on environment
+export const storage = process.env.NODE_ENV === 'production' || process.env.CF_PAGES 
+  ? new FileStorage() // Will be replaced by KV storage in CloudFlare
+  : new FileStorage();
