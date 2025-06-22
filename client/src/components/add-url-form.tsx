@@ -115,10 +115,15 @@ export default function AddUrlForm() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="5">5 minutes</SelectItem>
-                      <SelectItem value="10">10 minutes</SelectItem>
-                      <SelectItem value="15">15 minutes</SelectItem>
-                      <SelectItem value="30">30 minutes</SelectItem>
+                      <SelectItem value="5">5분</SelectItem>
+                      <SelectItem value="10">10분</SelectItem>
+                      <SelectItem value="15">15분</SelectItem>
+                      <SelectItem value="30">30분</SelectItem>
+                      <SelectItem value="60">1시간</SelectItem>
+                      <SelectItem value="240">4시간</SelectItem>
+                      <SelectItem value="360">6시간</SelectItem>
+                      <SelectItem value="720">12시간</SelectItem>
+                      <SelectItem value="1440">1일</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
