@@ -5,6 +5,7 @@ import UrlStatusTable from "@/components/url-status-table";
 import AddUrlForm from "@/components/add-url-form";
 import EmailSettingsForm from "@/components/email-settings-form";
 import ErrorLogs from "@/components/error-logs";
+import PasswordModal from "@/components/password-modal";
 import { Clock, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
@@ -13,11 +14,29 @@ type ActiveSection = "dashboard" | "settings" | "logs";
 
 export default function Dashboard() {
   const [activeSection, setActiveSection] = useState<ActiveSection>("dashboard");
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isSettingsUnlocked, setIsSettingsUnlocked] = useState(false);
 
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["/api/stats"],
     refetchInterval: 30000, // Refresh every 30 seconds
   });
+
+  const handleSectionChange = (section: ActiveSection) => {
+    if (section === "settings") {
+      if (!isSettingsUnlocked) {
+        setIsPasswordModalOpen(true);
+        return;
+      }
+    }
+    setActiveSection(section);
+  };
+
+  const handlePasswordSuccess = () => {
+    setIsSettingsUnlocked(true);
+    setActiveSection("settings");
+    setIsPasswordModalOpen(false);
+  };
 
   const formatLastCheck = (lastCheck: string | null) => {
     if (!lastCheck) return "Never";
@@ -32,7 +51,7 @@ export default function Dashboard() {
     <div className="min-h-screen flex bg-slate-50">
       <Sidebar 
         activeSection={activeSection} 
-        onSectionChange={setActiveSection}
+        onSectionChange={handleSectionChange}
         stats={stats}
         statsLoading={statsLoading}
       />
@@ -71,7 +90,7 @@ export default function Dashboard() {
             <UrlStatusTable />
           )}
           
-          {activeSection === "settings" && (
+          {activeSection === "settings" && isSettingsUnlocked && (
             <div className="space-y-6">
               <AddUrlForm />
               <EmailSettingsForm />
@@ -83,6 +102,12 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+
+      <PasswordModal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
+        onSuccess={handlePasswordSuccess}
+      />
     </div>
   );
 }
