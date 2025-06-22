@@ -1,3 +1,4 @@
+import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -33,28 +34,30 @@ export default function EmailSettingsForm() {
   const form = useForm<FormData>({
     resolver: zodResolver(insertEmailSettingsSchema),
     defaultValues: {
-      smtpServer: settings?.smtpServer || "",
-      smtpPort: settings?.smtpPort || 587,
-      fromEmail: settings?.fromEmail || "",
-      toEmails: settings?.toEmails || "",
-      username: settings?.username || "",
-      password: settings?.password || "",
-      isEnabled: settings?.isEnabled ?? true,
+      smtpServer: "",
+      smtpPort: 587,
+      fromEmail: "",
+      toEmails: "",
+      username: "",
+      password: "",
+      isEnabled: true,
     },
   });
 
-  // Update form when settings load
-  if (settings && !form.formState.isDirty) {
-    form.reset({
-      smtpServer: settings.smtpServer,
-      smtpPort: settings.smtpPort,
-      fromEmail: settings.fromEmail,
-      toEmails: settings.toEmails,
-      username: settings.username || "",
-      password: settings.password || "",
-      isEnabled: settings.isEnabled,
-    });
-  }
+  // Update form when settings load using useEffect
+  React.useEffect(() => {
+    if (settings && !form.formState.isDirty) {
+      form.reset({
+        smtpServer: settings.smtpServer,
+        smtpPort: settings.smtpPort,
+        fromEmail: settings.fromEmail,
+        toEmails: settings.toEmails,
+        username: settings.username || "",
+        password: settings.password || "",
+        isEnabled: settings.isEnabled,
+      });
+    }
+  }, [settings, form]);
 
   const saveSettingsMutation = useMutation({
     mutationFn: async (data: FormData) => {
