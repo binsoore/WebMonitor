@@ -34,6 +34,101 @@ export interface IStorage {
   createOrUpdateEmailSettings(settings: InsertEmailSettings): Promise<EmailSettings>;
 }
 
+import { users, monitoredUrls, errorLogs, emailSettings } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc } from "drizzle-orm";
+
+export class DatabaseStorage implements IStorage {
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async getMonitoredUrls(): Promise<MonitoredUrl[]> {
+    return await db.select().from(monitoredUrls).orderBy(desc(monitoredUrls.createdAt));
+  }
+
+  async getMonitoredUrl(id: number): Promise<MonitoredUrl | undefined> {
+    const [url] = await db.select().from(monitoredUrls).where(eq(monitoredUrls.id, id));
+    return url || undefined;
+  }
+
+  async createMonitoredUrl(insertUrl: InsertMonitoredUrl): Promise<MonitoredUrl> {
+    const [url] = await db
+      .insert(monitoredUrls)
+      .values(insertUrl)
+      .returning();
+    return url;
+  }
+
+  async updateMonitoredUrl(id: number, updates: Partial<MonitoredUrl>): Promise<MonitoredUrl | undefined> {
+    const [url] = await db
+      .update(monitoredUrls)
+      .set(updates)
+      .where(eq(monitoredUrls.id, id))
+      .returning();
+    return url || undefined;
+  }
+
+  async deleteMonitoredUrl(id: number): Promise<boolean> {
+    const result = await db.delete(monitoredUrls).where(eq(monitoredUrls.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  async getErrorLogs(limit = 50): Promise<ErrorLog[]> {
+    return await db
+      .select()
+      .from(errorLogs)
+      .orderBy(desc(errorLogs.timestamp))
+      .limit(limit);
+  }
+
+  async createErrorLog(insertLog: InsertErrorLog): Promise<ErrorLog> {
+    const [log] = await db
+      .insert(errorLogs)
+      .values(insertLog)
+      .returning();
+    return log;
+  }
+
+  async getEmailSettings(): Promise<EmailSettings | undefined> {
+    const [settings] = await db.select().from(emailSettings).orderBy(desc(emailSettings.id)).limit(1);
+    return settings || undefined;
+  }
+
+  async createOrUpdateEmailSettings(settings: InsertEmailSettings): Promise<EmailSettings> {
+    const existing = await this.getEmailSettings();
+    
+    if (existing) {
+      const [updated] = await db
+        .update(emailSettings)
+        .set(settings)
+        .where(eq(emailSettings.id, existing.id))
+        .returning();
+      return updated;
+    } else {
+      const [created] = await db
+        .insert(emailSettings)
+        .values(settings)
+        .returning();
+      return created;
+    }
+  }
+}
+
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
   private monitoredUrlsMap: Map<number, MonitoredUrl>;
@@ -155,4 +250,5 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Use database storage by default, fallback to memory storage if database is not available
+export const storage = process.env.DATABASE_URL ? new DatabaseStorage() : new MemStorage();
