@@ -36,21 +36,14 @@ export class EmailService {
     
     // Always create new transporter to avoid cached connection issues
     this.transporter = nodemailer.createTransport({
-      host: settings.smtpServer,
-      port: settings.smtpPort,
-      secure: settings.smtpPort === 465,
+      service: 'gmail', // Use Gmail service for better compatibility
       auth: settings.username && (gmailAppPassword || settings.password) ? {
         user: settings.username,
         pass: gmailAppPassword || settings.password,
       } : undefined,
       tls: {
         rejectUnauthorized: false
-      },
-      debug: true,
-      logger: true,
-      connectionTimeout: 60000,
-      greetingTimeout: 30000,
-      socketTimeout: 60000
+      }
     });
 
     return this.transporter;
