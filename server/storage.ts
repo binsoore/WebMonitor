@@ -83,8 +83,11 @@ export class MemStorage implements IStorage {
   async createMonitoredUrl(insertUrl: InsertMonitoredUrl): Promise<MonitoredUrl> {
     const id = this.currentUrlId++;
     const url: MonitoredUrl = {
-      ...insertUrl,
       id,
+      name: insertUrl.name,
+      url: insertUrl.url,
+      checkInterval: insertUrl.checkInterval ?? 5,
+      isActive: insertUrl.isActive ?? true,
       status: "unknown",
       responseTime: null,
       lastCheck: null,
@@ -119,8 +122,12 @@ export class MemStorage implements IStorage {
   async createErrorLog(insertLog: InsertErrorLog): Promise<ErrorLog> {
     const id = this.currentErrorLogId++;
     const log: ErrorLog = {
-      ...insertLog,
       id,
+      url: insertLog.url,
+      urlId: insertLog.urlId ?? null,
+      errorType: insertLog.errorType,
+      errorMessage: insertLog.errorMessage,
+      statusCode: insertLog.statusCode ?? null,
       timestamp: new Date(),
     };
     this.errorLogsMap.set(id, log);
@@ -133,8 +140,14 @@ export class MemStorage implements IStorage {
 
   async createOrUpdateEmailSettings(settings: InsertEmailSettings): Promise<EmailSettings> {
     const emailSettings: EmailSettings = {
-      ...settings,
       id: this.emailSettingsData?.id || this.currentEmailSettingsId++,
+      smtpServer: settings.smtpServer,
+      smtpPort: settings.smtpPort,
+      fromEmail: settings.fromEmail,
+      toEmails: settings.toEmails,
+      username: settings.username ?? null,
+      password: settings.password ?? null,
+      isEnabled: settings.isEnabled ?? true,
       lastTest: null,
     };
     this.emailSettingsData = emailSettings;
