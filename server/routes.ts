@@ -127,8 +127,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         res.status(400).json({ message: "Failed to send test email. Check your settings." });
       }
-    } catch (error) {
-      res.status(500).json({ message: "Error sending test email" });
+    } catch (error: any) {
+      console.error("Test email error details:", error);
+      res.status(500).json({ 
+        message: "Error sending test email", 
+        error: error.message || "Unknown error",
+        details: error.code || "No error code"
+      });
     }
   });
 

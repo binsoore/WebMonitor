@@ -153,9 +153,15 @@ export class EmailService {
       });
       
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to send test email:', error);
-      return false;
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        command: error.command,
+        response: error.response
+      });
+      throw error;
     }
   }
 }
