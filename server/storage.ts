@@ -1,17 +1,6 @@
-import { 
-  users, 
-  monitoredUrls, 
-  errorLogs, 
-  emailSettings,
-  type User, 
-  type InsertUser,
-  type MonitoredUrl,
-  type InsertMonitoredUrl,
-  type ErrorLog,
-  type InsertErrorLog,
-  type EmailSettings,
-  type InsertEmailSettings
-} from "@shared/schema";
+import type { User, InsertUser, MonitoredUrl, InsertMonitoredUrl, ErrorLog, InsertErrorLog, EmailSettings, InsertEmailSettings } from "@shared/schema";
+import fs from 'fs/promises';
+import path from 'path';
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -34,221 +23,200 @@ export interface IStorage {
   createOrUpdateEmailSettings(settings: InsertEmailSettings): Promise<EmailSettings>;
 }
 
-import { users, monitoredUrls, errorLogs, emailSettings } from "@shared/schema";
-import { db } from "./db";
-import { eq, desc } from "drizzle-orm";
-
-export class DatabaseStorage implements IStorage {
-  async getUser(id: number): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user || undefined;
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-    return user || undefined;
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(insertUser)
-      .returning();
-    return user;
-  }
-
-  async getMonitoredUrls(): Promise<MonitoredUrl[]> {
-    return await db.select().from(monitoredUrls).orderBy(desc(monitoredUrls.createdAt));
-  }
-
-  async getMonitoredUrl(id: number): Promise<MonitoredUrl | undefined> {
-    const [url] = await db.select().from(monitoredUrls).where(eq(monitoredUrls.id, id));
-    return url || undefined;
-  }
-
-  async createMonitoredUrl(insertUrl: InsertMonitoredUrl): Promise<MonitoredUrl> {
-    const [url] = await db
-      .insert(monitoredUrls)
-      .values(insertUrl)
-      .returning();
-    return url;
-  }
-
-  async updateMonitoredUrl(id: number, updates: Partial<MonitoredUrl>): Promise<MonitoredUrl | undefined> {
-    const [url] = await db
-      .update(monitoredUrls)
-      .set(updates)
-      .where(eq(monitoredUrls.id, id))
-      .returning();
-    return url || undefined;
-  }
-
-  async deleteMonitoredUrl(id: number): Promise<boolean> {
-    const result = await db.delete(monitoredUrls).where(eq(monitoredUrls.id, id));
-    return (result.rowCount || 0) > 0;
-  }
-
-  async getErrorLogs(limit = 50): Promise<ErrorLog[]> {
-    return await db
-      .select()
-      .from(errorLogs)
-      .orderBy(desc(errorLogs.timestamp))
-      .limit(limit);
-  }
-
-  async createErrorLog(insertLog: InsertErrorLog): Promise<ErrorLog> {
-    const [log] = await db
-      .insert(errorLogs)
-      .values(insertLog)
-      .returning();
-    return log;
-  }
-
-  async getEmailSettings(): Promise<EmailSettings | undefined> {
-    const [settings] = await db.select().from(emailSettings).orderBy(desc(emailSettings.id)).limit(1);
-    return settings || undefined;
-  }
-
-  async createOrUpdateEmailSettings(settings: InsertEmailSettings): Promise<EmailSettings> {
-    const existing = await this.getEmailSettings();
-    
-    if (existing) {
-      const [updated] = await db
-        .update(emailSettings)
-        .set(settings)
-        .where(eq(emailSettings.id, existing.id))
-        .returning();
-      return updated;
-    } else {
-      const [created] = await db
-        .insert(emailSettings)
-        .values(settings)
-        .returning();
-      return created;
-    }
-  }
+interface StorageData {
+  users: Map<number, User>;
+  monitoredUrls: Map<number, MonitoredUrl>;
+  errorLogs: Map<number, ErrorLog>;
+  emailSettings: EmailSettings | undefined;
+  counters: {
+    userId: number;
+    urlId: number;
+    errorLogId: number;
+    emailSettingsId: number;
+  };
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private monitoredUrlsMap: Map<number, MonitoredUrl>;
-  private errorLogsMap: Map<number, ErrorLog>;
-  private emailSettingsData: EmailSettings | undefined;
-  private currentUserId: number;
-  private currentUrlId: number;
-  private currentErrorLogId: number;
-  private currentEmailSettingsId: number;
+export class FileStorage implements IStorage {
+  private dataPath: string;
+  private data: StorageData;
 
   constructor() {
-    this.users = new Map();
-    this.monitoredUrlsMap = new Map();
-    this.errorLogsMap = new Map();
-    this.emailSettingsData = undefined;
-    this.currentUserId = 1;
-    this.currentUrlId = 1;
-    this.currentErrorLogId = 1;
-    this.currentEmailSettingsId = 1;
+    this.dataPath = path.join(process.cwd(), 'data', 'storage.json');
+    this.data = {
+      users: new Map(),
+      monitoredUrls: new Map(),
+      errorLogs: new Map(),
+      emailSettings: undefined,
+      counters: {
+        userId: 1,
+        urlId: 1,
+        errorLogId: 1,
+        emailSettingsId: 1,
+      },
+    };
+    this.loadData();
+  }
+
+  private async loadData(): Promise<void> {
+    try {
+      await fs.mkdir(path.dirname(this.dataPath), { recursive: true });
+      
+      const fileContent = await fs.readFile(this.dataPath, 'utf-8');
+      const jsonData = JSON.parse(fileContent);
+      
+      this.data.users = new Map(jsonData.users || []);
+      this.data.monitoredUrls = new Map(jsonData.monitoredUrls || []);
+      this.data.errorLogs = new Map(jsonData.errorLogs || []);
+      this.data.emailSettings = jsonData.emailSettings;
+      this.data.counters = jsonData.counters || {
+        userId: 1,
+        urlId: 1,
+        errorLogId: 1,
+        emailSettingsId: 1,
+      };
+      
+      console.log('Settings loaded from file:', {
+        urls: this.data.monitoredUrls.size,
+        errorLogs: this.data.errorLogs.size,
+        hasEmailSettings: !!this.data.emailSettings
+      });
+    } catch (error) {
+      console.log('Starting with empty settings');
+    }
+  }
+
+  private async saveData(): Promise<void> {
+    try {
+      const jsonData = {
+        users: Array.from(this.data.users.entries()),
+        monitoredUrls: Array.from(this.data.monitoredUrls.entries()),
+        errorLogs: Array.from(this.data.errorLogs.entries()),
+        emailSettings: this.data.emailSettings,
+        counters: this.data.counters,
+      };
+      
+      await fs.writeFile(this.dataPath, JSON.stringify(jsonData, null, 2));
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+    }
   }
 
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    return this.data.users.get(id);
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const usersArray = Array.from(this.data.users.values());
+    return usersArray.find(user => user.username === username);
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
+    const id = this.data.counters.userId++;
     const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    this.data.users.set(id, user);
+    await this.saveData();
     return user;
   }
 
   async getMonitoredUrls(): Promise<MonitoredUrl[]> {
-    return Array.from(this.monitoredUrlsMap.values());
+    return Array.from(this.data.monitoredUrls.values()).sort((a, b) => {
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bTime - aTime;
+    });
   }
 
   async getMonitoredUrl(id: number): Promise<MonitoredUrl | undefined> {
-    return this.monitoredUrlsMap.get(id);
+    return this.data.monitoredUrls.get(id);
   }
 
   async createMonitoredUrl(insertUrl: InsertMonitoredUrl): Promise<MonitoredUrl> {
-    const id = this.currentUrlId++;
+    const id = this.data.counters.urlId++;
     const url: MonitoredUrl = {
       id,
       name: insertUrl.name,
+      status: 'pending',
       url: insertUrl.url,
-      checkInterval: insertUrl.checkInterval ?? 5,
-      isActive: insertUrl.isActive ?? true,
-      status: "unknown",
+      checkInterval: insertUrl.checkInterval || 5,
+      isActive: true,
       responseTime: null,
       lastCheck: null,
-      uptime: 0,
+      uptime: 100,
       totalChecks: 0,
       successfulChecks: 0,
       createdAt: new Date(),
     };
-    this.monitoredUrlsMap.set(id, url);
+    this.data.monitoredUrls.set(id, url);
+    await this.saveData();
     return url;
   }
 
   async updateMonitoredUrl(id: number, updates: Partial<MonitoredUrl>): Promise<MonitoredUrl | undefined> {
-    const existing = this.monitoredUrlsMap.get(id);
-    if (!existing) return undefined;
-    
-    const updated = { ...existing, ...updates };
-    this.monitoredUrlsMap.set(id, updated);
-    return updated;
+    const url = this.data.monitoredUrls.get(id);
+    if (!url) return undefined;
+
+    const updatedUrl = { ...url, ...updates };
+    this.data.monitoredUrls.set(id, updatedUrl);
+    await this.saveData();
+    return updatedUrl;
   }
 
   async deleteMonitoredUrl(id: number): Promise<boolean> {
-    return this.monitoredUrlsMap.delete(id);
+    const deleted = this.data.monitoredUrls.delete(id);
+    if (deleted) {
+      await this.saveData();
+    }
+    return deleted;
   }
 
   async getErrorLogs(limit = 50): Promise<ErrorLog[]> {
-    const logs = Array.from(this.errorLogsMap.values())
-      .sort((a, b) => (b.timestamp?.getTime() || 0) - (a.timestamp?.getTime() || 0));
-    return logs.slice(0, limit);
+    const logs = Array.from(this.data.errorLogs.values())
+      .sort((a, b) => {
+        const aTime = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+        const bTime = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+        return bTime - aTime;
+      })
+      .slice(0, limit);
+    return logs;
   }
 
   async createErrorLog(insertLog: InsertErrorLog): Promise<ErrorLog> {
-    const id = this.currentErrorLogId++;
+    const id = this.data.counters.errorLogId++;
     const log: ErrorLog = {
       id,
-      url: insertLog.url,
-      urlId: insertLog.urlId ?? null,
+      url: insertLog.url || '',
+      urlId: insertLog.urlId || null,
       errorType: insertLog.errorType,
-      errorMessage: insertLog.errorMessage,
-      statusCode: insertLog.statusCode ?? null,
+      errorMessage: insertLog.errorMessage || '',
+      statusCode: insertLog.statusCode || null,
       timestamp: new Date(),
     };
-    this.errorLogsMap.set(id, log);
+    this.data.errorLogs.set(id, log);
+    await this.saveData();
     return log;
   }
 
   async getEmailSettings(): Promise<EmailSettings | undefined> {
-    return this.emailSettingsData;
+    return this.data.emailSettings;
   }
 
   async createOrUpdateEmailSettings(settings: InsertEmailSettings): Promise<EmailSettings> {
     const emailSettings: EmailSettings = {
-      id: this.emailSettingsData?.id || this.currentEmailSettingsId++,
+      id: this.data.emailSettings?.id || this.data.counters.emailSettingsId++,
+      username: settings.username || null,
+      password: settings.password || null,
       smtpServer: settings.smtpServer,
       smtpPort: settings.smtpPort,
       fromEmail: settings.fromEmail,
       toEmails: settings.toEmails,
-      username: settings.username ?? null,
-      password: settings.password ?? null,
-      isEnabled: settings.isEnabled ?? true,
-      lastTest: null,
+      isEnabled: settings.isEnabled || false,
+      lastTest: this.data.emailSettings?.lastTest || null,
     };
-    this.emailSettingsData = emailSettings;
+    this.data.emailSettings = emailSettings;
+    await this.saveData();
     return emailSettings;
   }
 }
 
-// Use database storage by default, fallback to memory storage if database is not available
-export const storage = process.env.DATABASE_URL ? new DatabaseStorage() : new MemStorage();
+// Use file storage for persistence across app restarts
+export const storage = new FileStorage();

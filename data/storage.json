@@ -1,0 +1,53 @@
+{
+  "users": [],
+  "monitoredUrls": [
+    [
+      1,
+      {
+        "url": "https://www.google.com",
+        "name": "Google 테스트",
+        "checkInterval": 5,
+        "id": 1,
+        "createdAt": "2025-06-22T14:27:46.430Z",
+        "lastChecked": null,
+        "isOnline": null,
+        "responseTime": null,
+        "statusCode": null,
+        "uptime": 100,
+        "totalChecks": 0,
+        "failedChecks": 0
+      }
+    ]
+  ],
+  "errorLogs": [
+    [
+      1,
+      {
+        "id": 1,
+        "url": "",
+        "urlId": null,
+        "errorType": "EMAIL_TEST_SUCCESS",
+        "errorMessage": "",
+        "statusCode": null,
+        "timestamp": "2025-06-22T14:28:12.367Z"
+      }
+    ]
+  ],
+  "emailSettings": {
+    "id": 1,
+    "username": "binsoore@gmail.com",
+    "password": "test",
+    "smtpServer": "smtp.gmail.com",
+    "smtpPort": 587,
+    "fromEmail": "binsoore@gmail.com",
+    "toEmails": "binsoore@gmail.com",
+    "isEnabled": true,
+    "lastTest": null
+  },
+  "counters": {
+    "userId": 1,
+    "urlId": 2,
+    "errorLogId": 2,
+    "emailSettingsId": 2
+  }
+}
