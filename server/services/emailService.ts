@@ -17,20 +17,33 @@ export class EmailService {
     const settings = await storage.getEmailSettings();
     
     if (!settings || !settings.isEnabled) {
+      console.log('Email settings not found or disabled');
       return null;
     }
 
-    if (!this.transporter) {
-      this.transporter = nodemailer.createTransporter({
-        host: settings.smtpServer,
-        port: settings.smtpPort,
-        secure: settings.smtpPort === 465,
-        auth: settings.username && settings.password ? {
-          user: settings.username,
-          pass: settings.password,
-        } : undefined,
-      });
-    }
+    console.log('Email settings:', {
+      smtpServer: settings.smtpServer,
+      smtpPort: settings.smtpPort,
+      fromEmail: settings.fromEmail,
+      toEmails: settings.toEmails,
+      hasUsername: !!settings.username,
+      hasPassword: !!settings.password,
+      isEnabled: settings.isEnabled
+    });
+
+    // Always create new transporter to avoid cached connection issues
+    this.transporter = nodemailer.createTransport({
+      host: settings.smtpServer,
+      port: settings.smtpPort,
+      secure: settings.smtpPort === 465,
+      auth: settings.username && settings.password ? {
+        user: settings.username,
+        pass: settings.password,
+      } : undefined,
+      tls: {
+        rejectUnauthorized: false // For testing purposes
+      }
+    });
 
     return this.transporter;
   }
