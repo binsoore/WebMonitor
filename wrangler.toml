@@ -2,9 +2,13 @@ name = "url-monitor"
 compatibility_date = "2024-06-22"
 compatibility_flags = ["nodejs_compat"]
 
+[build]
+command = "npm install && npx vite build --config vite.config.cloudflare.ts"
+cwd = "."
+
 pages_build_output_dir = "dist"
 
-# KV binding for storage
-[[kv_namespaces]]
-binding = "URL_MONITOR_KV"
-id = "your_kv_namespace_id_here"
+# KV binding for storage (will be configured in CloudFlare dashboard)
+# [[kv_namespaces]]
+# binding = "URL_MONITOR_KV"
+# id = "your_kv_namespace_id_here"

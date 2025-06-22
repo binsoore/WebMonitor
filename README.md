@@ -27,7 +27,7 @@ URL 모니터링 웹사이트를 CloudFlare Pages에 배포하는 방법입니�
 #### 로컬에서 빌드 테스트:
 ```bash
 npm install
-node build-simple.js
+npx vite build --config vite.config.cloudflare.ts
 ```
 
 #### CloudFlare Pages에 배포:
@@ -36,15 +36,16 @@ node build-simple.js
 1. GitHub에 코드 푸시
 2. CloudFlare Pages에서 GitHub 저장소 연결
 3. 빌드 설정:
-   - Build command: `node build-simple.js`
+   - Build command: `npm install && npx vite build --config vite.config.cloudflare.ts`
    - Build output directory: `dist`
    - Root directory: `/`
-   - Environment variables: `URL_MONITOR_KV` (KV Namespace 바인딩 필요)
+   - Node.js version: `20`
 
-**방법 2: 직접 업로드**
+**방법 2: Wrangler CLI 직접 배포**
 ```bash
-node build-simple.js
-npx wrangler pages deploy dist
+npm install
+npx vite build --config vite.config.cloudflare.ts
+npx wrangler pages deploy dist --project-name url-monitor
 ```
 
 ### 4. CloudFlare Pages 환경변수 설정
@@ -103,10 +104,11 @@ npm run cf:dev
 4. **모니터링**: URL 상태 체크 기능 확인
 
 ### 주요 CloudFlare Pages 설정
-- **Build command**: `node build-simple.js`
+- **Build command**: `npm install && npx vite build --config vite.config.cloudflare.ts`
 - **Build output directory**: `dist`  
+- **Node.js version**: `20`
 - **Functions compatibility date**: `2024-06-22`
-- **KV Binding**: `URL_MONITOR_KV` → KV Namespace
+- **KV Binding**: `URL_MONITOR_KV` → KV Namespace (Functions 설정에서 추가)
 
 ## 문제 해결
 
