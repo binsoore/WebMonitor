@@ -20,6 +20,12 @@ export default function ErrorLogs() {
       timeout: "bg-red-100 text-red-800 border-red-200",
       http_error: "bg-red-100 text-red-800 border-red-200",
       connection_error: "bg-orange-100 text-orange-800 border-orange-200",
+      EMAIL_TEST_SUCCESS: "bg-green-100 text-green-800 border-green-200",
+      EMAIL_TEST_FAILED: "bg-red-100 text-red-800 border-red-200",
+      EMAIL_ALERT_SUCCESS: "bg-blue-100 text-blue-800 border-blue-200",
+      EMAIL_ALERT_FAILED: "bg-red-100 text-red-800 border-red-200",
+      EMAIL_RECOVERY_SUCCESS: "bg-green-100 text-green-800 border-green-200",
+      EMAIL_RECOVERY_FAILED: "bg-red-100 text-red-800 border-red-200",
     };
 
     const className = variants[errorType] || "bg-gray-100 text-gray-800 border-gray-200";
@@ -56,7 +62,7 @@ export default function ErrorLogs() {
       <CardHeader>
         <CardTitle className="flex items-center">
           <AlertCircle className="text-red-600 mr-2 w-5 h-5" />
-          Recent Errors
+          최근 시스템 로그
         </CardTitle>
       </CardHeader>
       <CardContent>

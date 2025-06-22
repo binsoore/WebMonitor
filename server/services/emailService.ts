@@ -85,8 +85,28 @@ export class EmailService {
         subject,
         html,
       });
-    } catch (error) {
+      
+      // Log successful downtime alert
+      await storage.createErrorLog({
+        urlId: url.id,
+        error: null,
+        errorType: 'EMAIL_ALERT_SUCCESS',
+        statusCode: null,
+        responseTime: null,
+        details: `Downtime alert sent for ${url.name || url.url}`
+      });
+    } catch (error: any) {
       console.error('Failed to send downtime alert email:', error);
+      
+      // Log email alert failure
+      await storage.createErrorLog({
+        urlId: url.id,
+        error: error.message || 'Failed to send downtime alert',
+        errorType: 'EMAIL_ALERT_FAILED',
+        statusCode: null,
+        responseTime: null,
+        details: `SMTP Error when alerting for ${url.name || url.url}: ${error.code || 'UNKNOWN'}`
+      });
     }
   }
 
@@ -125,8 +145,28 @@ export class EmailService {
         subject,
         html,
       });
-    } catch (error) {
+      
+      // Log successful recovery alert
+      await storage.createErrorLog({
+        urlId: url.id,
+        error: null,
+        errorType: 'EMAIL_RECOVERY_SUCCESS',
+        statusCode: null,
+        responseTime: null,
+        details: `Recovery alert sent for ${url.name || url.url}`
+      });
+    } catch (error: any) {
       console.error('Failed to send recovery alert email:', error);
+      
+      // Log email recovery alert failure
+      await storage.createErrorLog({
+        urlId: url.id,
+        error: error.message || 'Failed to send recovery alert',
+        errorType: 'EMAIL_RECOVERY_FAILED',
+        statusCode: null,
+        responseTime: null,
+        details: `SMTP Error when sending recovery alert for ${url.name || url.url}: ${error.code || 'UNKNOWN'}`
+      });
     }
   }
 
@@ -166,6 +206,16 @@ export class EmailService {
       
       console.log('Email sent successfully:', result.messageId);
       
+      // Log successful email test
+      await storage.createErrorLog({
+        urlId: null,
+        error: null,
+        errorType: 'EMAIL_TEST_SUCCESS',
+        statusCode: null,
+        responseTime: null,
+        details: `Test email sent successfully to ${recipients.join(', ')}`
+      });
+      
       // Update last test time
       await storage.createOrUpdateEmailSettings({
         ...settings,
@@ -175,12 +225,17 @@ export class EmailService {
       return true;
     } catch (error: any) {
       console.error('Failed to send test email:', error);
-      console.error('Error details:', {
-        message: error.message,
-        code: error.code,
-        command: error.command,
-        response: error.response
+      
+      // Log email error
+      await storage.createErrorLog({
+        urlId: null,
+        error: error.message || 'Failed to send test email',
+        errorType: 'EMAIL_TEST_FAILED',
+        statusCode: null,
+        responseTime: null,
+        details: `SMTP Error: ${error.code || 'UNKNOWN'} - ${error.command || 'N/A'}`
       });
+      
       throw error;
     }
   }

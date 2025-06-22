@@ -58,7 +58,7 @@ export default function Sidebar({ activeSection, onSectionChange, stats, statsLo
             }`}
           >
             <FileText className="w-5 h-5" />
-            <span>Error Logs</span>
+            <span>Logs</span>
           </button>
         </nav>
       </div>

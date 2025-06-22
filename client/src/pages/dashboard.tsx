@@ -64,12 +64,12 @@ export default function Dashboard() {
               <h2 className="text-2xl font-bold text-slate-900">
                 {activeSection === "dashboard" && "URL Monitoring Dashboard"}
                 {activeSection === "settings" && "Settings"}
-                {activeSection === "logs" && "Error Logs"}
+                {activeSection === "logs" && "Logs"}
               </h2>
               <p className="text-slate-600 mt-1">
                 {activeSection === "dashboard" && "Monitor your websites and get notified when they go down"}
                 {activeSection === "settings" && "Manage monitored URLs and configure email notifications"}
-                {activeSection === "logs" && "View recent errors and incidents"}
+                {activeSection === "logs" && "시스템 로그 및 오류 기록 확인"}
               </p>
             </div>
             <div className="flex items-center space-x-4">
