@@ -27,19 +27,36 @@ URL 모니터링 웹사이트를 CloudFlare Pages에 배포하는 방법입니�
 #### 로컬에서 빌드 테스트:
 ```bash
 npm install
-npm run build
+node build-simple.js
 ```
 
 #### CloudFlare Pages에 배포:
+
+**방법 1: GitHub 연동 (권장)**
+1. GitHub에 코드 푸시
+2. CloudFlare Pages에서 GitHub 저장소 연결
+3. 빌드 설정:
+   - Build command: `node build-simple.js`
+   - Build output directory: `dist`
+   - Root directory: `/`
+   - Environment variables: `URL_MONITOR_KV` (KV Namespace 바인딩 필요)
+
+**방법 2: 직접 업로드**
 ```bash
-npm run deploy
+node build-simple.js
+npx wrangler pages deploy dist
 ```
 
 ### 4. CloudFlare Pages 환경변수 설정
-CloudFlare Pages 대시보드에서 다음 환경변수 설정:
 
-#### Production 환경:
-- `URL_MONITOR_KV`: 앞서 생성한 KV Namespace 바인딩
+#### KV Namespace 바인딩:
+1. CloudFlare Pages 대시보드 → Settings → Functions
+2. "Add binding" 클릭
+3. Variable name: `URL_MONITOR_KV`
+4. Type: `KV Namespace`
+5. KV namespace: 앞서 생성한 namespace 선택
+
+#### Environment Variables:
 - `NODE_ENV`: `production`
 
 ### 5. 이메일 설정 (선택사항)
@@ -80,10 +97,16 @@ npm run cf:dev
 
 ## 배포 후 확인사항
 
-1. KV 저장소 연결 확인
-2. API 엔드포인트 작동 확인
-3. URL 추가 및 모니터링 테스트
-4. 이메일 설정 및 테스트
+1. **사이트 접속**: CloudFlare Pages에서 제공하는 URL로 접속
+2. **API 테스트**: `/api/stats` 엔드포인트 확인 
+3. **KV 저장소**: URL 추가 후 데이터 저장 확인
+4. **모니터링**: URL 상태 체크 기능 확인
+
+### 주요 CloudFlare Pages 설정
+- **Build command**: `node build-simple.js`
+- **Build output directory**: `dist`  
+- **Functions compatibility date**: `2024-06-22`
+- **KV Binding**: `URL_MONITOR_KV` → KV Namespace
 
 ## 문제 해결
 

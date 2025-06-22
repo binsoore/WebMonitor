@@ -2,27 +2,9 @@ name = "url-monitor"
 compatibility_date = "2024-06-22"
 compatibility_flags = ["nodejs_compat"]
 
-[build]
-command = "npm run build"
-cwd = "."
-
-[[build.environment_variables]]
-NODE_VERSION = "20"
-
-[env.production]
-name = "url-monitor-production"
-
-[env.production.vars]
-NODE_ENV = "production"
-
-# Functions configuration for API routes
 pages_build_output_dir = "dist"
 
-# Routes for API
-[[env.production.routes]]
-pattern = "/api/*"
-custom_domain = true
-
-# Environment variables (these will be set in CloudFlare dashboard)
-# DATABASE_URL = "your-database-url"
-# SMTP settings will be configured as secrets
+# KV binding for storage
+[[kv_namespaces]]
+binding = "URL_MONITOR_KV"
+id = "your_kv_namespace_id_here"

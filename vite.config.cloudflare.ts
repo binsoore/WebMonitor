@@ -8,10 +8,9 @@ export default defineConfig({
   build: {
     outDir: '../dist',
     emptyOutDir: true,
+    minify: false, // 빌드 속도 향상
     rollupOptions: {
-      input: {
-        main: path.resolve(__dirname, 'client/index.html')
-      }
+      external: [], // 모든 의존성 번들에 포함
     }
   },
   resolve: {
@@ -20,8 +19,7 @@ export default defineConfig({
       '@shared': path.resolve(__dirname, 'shared'),
     },
   },
-  server: {
-    port: 3000,
-    host: '0.0.0.0',
-  },
+  optimizeDeps: {
+    include: ['react', 'react-dom'] // 주요 의존성 사전 번들링
+  }
 });
