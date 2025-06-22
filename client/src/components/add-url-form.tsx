@@ -68,7 +68,7 @@ export default function AddUrlForm() {
       <CardHeader>
         <CardTitle className="flex items-center">
           <PlusCircle className="text-blue-600 mr-2 w-5 h-5" />
-          Add New URL to Monitor
+          모니터링 URL 추가
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -79,7 +79,7 @@ export default function AddUrlForm() {
               name="url"
               render={({ field }) => (
                 <FormItem className="flex-1">
-                  <FormLabel>Website URL</FormLabel>
+                  <FormLabel>웹사이트 URL</FormLabel>
                   <FormControl>
                     <Input placeholder="https://example.com" {...field} />
                   </FormControl>
@@ -93,9 +93,9 @@ export default function AddUrlForm() {
               name="name"
               render={({ field }) => (
                 <FormItem className="w-48">
-                  <FormLabel>Name/Description</FormLabel>
+                  <FormLabel>이름/설명</FormLabel>
                   <FormControl>
-                    <Input placeholder="My Website" {...field} />
+                    <Input placeholder="내 웹사이트" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -107,7 +107,7 @@ export default function AddUrlForm() {
               name="checkInterval"
               render={({ field }) => (
                 <FormItem className="w-40">
-                  <FormLabel>Check Interval</FormLabel>
+                  <FormLabel>체크 간격</FormLabel>
                   <Select value={field.value.toString()} onValueChange={(value) => field.onChange(parseInt(value))}>
                     <FormControl>
                       <SelectTrigger>
@@ -137,7 +137,7 @@ export default function AddUrlForm() {
                 className="bg-blue-600 hover:bg-blue-700"
                 disabled={addUrlMutation.isPending}
               >
-                {addUrlMutation.isPending ? "Adding..." : "Add URL"}
+                {addUrlMutation.isPending ? "추가 중..." : "URL 추가"}
               </Button>
             </div>
           </form>

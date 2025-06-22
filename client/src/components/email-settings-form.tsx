@@ -133,7 +133,7 @@ export default function EmailSettingsForm() {
       <CardHeader>
         <CardTitle className="flex items-center">
           <Mail className="text-slate-600 mr-2 w-5 h-5" />
-          Email Notification Settings
+          이메일 알림 설정
         </CardTitle>
       </CardHeader>
       <CardContent>

@@ -46,7 +46,7 @@ export default function Sidebar({ activeSection, onSectionChange, stats, statsLo
             }`}
           >
             <Settings className="w-5 h-5" />
-            <span>Email Settings</span>
+            <span>Settings</span>
           </button>
           
           <button

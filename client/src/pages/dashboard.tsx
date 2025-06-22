@@ -44,12 +44,12 @@ export default function Dashboard() {
             <div>
               <h2 className="text-2xl font-bold text-slate-900">
                 {activeSection === "dashboard" && "URL Monitoring Dashboard"}
-                {activeSection === "settings" && "Email Settings"}
+                {activeSection === "settings" && "Settings"}
                 {activeSection === "logs" && "Error Logs"}
               </h2>
               <p className="text-slate-600 mt-1">
                 {activeSection === "dashboard" && "Monitor your websites and get notified when they go down"}
-                {activeSection === "settings" && "Configure email notifications for downtime alerts"}
+                {activeSection === "settings" && "Manage monitored URLs and configure email notifications"}
                 {activeSection === "logs" && "View recent errors and incidents"}
               </p>
             </div>
@@ -60,12 +60,7 @@ export default function Dashboard() {
                   <span>Last check: {formatLastCheck(stats.lastCheck)}</span>
                 </div>
               )}
-              {activeSection === "dashboard" && (
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add URL
-                </Button>
-              )}
+
             </div>
           </div>
         </div>
@@ -73,14 +68,14 @@ export default function Dashboard() {
         {/* Main Content */}
         <div className="flex-1 overflow-y-auto p-6">
           {activeSection === "dashboard" && (
-            <div className="space-y-6">
-              <AddUrlForm />
-              <UrlStatusTable />
-            </div>
+            <UrlStatusTable />
           )}
           
           {activeSection === "settings" && (
-            <EmailSettingsForm />
+            <div className="space-y-6">
+              <AddUrlForm />
+              <EmailSettingsForm />
+            </div>
           )}
           
           {activeSection === "logs" && (
