@@ -10,11 +10,11 @@
         "url": "https://www.google.com",
         "checkInterval": 5,
         "isActive": true,
-        "responseTime": 66,
-        "lastCheck": "2025-06-22T14:34:00.072Z",
+        "responseTime": 64,
+        "lastCheck": "2025-06-22T14:35:00.091Z",
         "uptime": 100,
-        "totalChecks": 6,
-        "successfulChecks": 6,
+        "totalChecks": 7,
+        "successfulChecks": 7,
         "createdAt": "2025-06-22T14:29:40.268Z"
       }
     ]
