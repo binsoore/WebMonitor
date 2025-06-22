@@ -21,6 +21,8 @@ export class EmailService {
       return null;
     }
 
+    const gmailAppPassword = process.env.GMAIL_APP_PASSWORD;
+    
     console.log('Email settings:', {
       smtpServer: settings.smtpServer,
       smtpPort: settings.smtpPort,
@@ -28,21 +30,27 @@ export class EmailService {
       toEmails: settings.toEmails,
       hasUsername: !!settings.username,
       hasPassword: !!settings.password,
+      hasGmailAppPassword: !!gmailAppPassword,
       isEnabled: settings.isEnabled
     });
-
+    
     // Always create new transporter to avoid cached connection issues
     this.transporter = nodemailer.createTransport({
       host: settings.smtpServer,
       port: settings.smtpPort,
       secure: settings.smtpPort === 465,
-      auth: settings.username && settings.password ? {
+      auth: settings.username && (gmailAppPassword || settings.password) ? {
         user: settings.username,
-        pass: settings.password,
+        pass: gmailAppPassword || settings.password,
       } : undefined,
       tls: {
-        rejectUnauthorized: false // For testing purposes
-      }
+        rejectUnauthorized: false
+      },
+      debug: true,
+      logger: true,
+      connectionTimeout: 60000,
+      greetingTimeout: 30000,
+      socketTimeout: 60000
     });
 
     return this.transporter;
@@ -152,12 +160,18 @@ export class EmailService {
     `;
 
     try {
-      await transporter.sendMail({
+      console.log('Attempting to send test email...');
+      console.log('From:', settings.fromEmail);
+      console.log('To:', recipients);
+      
+      const result = await transporter.sendMail({
         from: settings.fromEmail,
         to: recipients,
         subject,
         html,
       });
+      
+      console.log('Email sent successfully:', result.messageId);
       
       // Update last test time
       await storage.createOrUpdateEmailSettings({

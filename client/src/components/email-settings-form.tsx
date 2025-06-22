@@ -194,9 +194,9 @@ export default function EmailSettingsForm() {
                 name="fromEmail"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>From Email</FormLabel>
+                    <FormLabel>보내는 이메일</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="alerts@yourcompany.com" {...field} />
+                      <Input type="email" placeholder="binsoore@gmail.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -208,9 +208,9 @@ export default function EmailSettingsForm() {
                 name="toEmails"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Alert Recipients</FormLabel>
+                    <FormLabel>알림 받을 이메일</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="admin@yourcompany.com" {...field} />
+                      <Input type="email" placeholder="binsoore@gmail.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -222,9 +222,9 @@ export default function EmailSettingsForm() {
                 name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>SMTP Username (optional)</FormLabel>
+                    <FormLabel>SMTP Username</FormLabel>
                     <FormControl>
-                      <Input placeholder="your.email@gmail.com" {...field} />
+                      <Input placeholder="binsoore@gmail.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -236,9 +236,9 @@ export default function EmailSettingsForm() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>SMTP Password (optional)</FormLabel>
+                    <FormLabel>SMTP Password (Gmail 앱 비밀번호 권장)</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="your-app-password" {...field} />
+                      <Input type="password" placeholder="Gmail 앱 비밀번호 입력" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -254,14 +254,14 @@ export default function EmailSettingsForm() {
                 disabled={testEmailMutation.isPending || !form.getValues("isEnabled")}
               >
                 <Send className="w-4 h-4 mr-2" />
-                {testEmailMutation.isPending ? "Sending..." : "Send Test Email"}
+                {testEmailMutation.isPending ? "발송 중..." : "테스트 이메일 발송"}
               </Button>
               <Button 
                 type="submit" 
                 className="bg-blue-600 hover:bg-blue-700"
                 disabled={saveSettingsMutation.isPending}
               >
-                {saveSettingsMutation.isPending ? "Saving..." : "Save Settings"}
+                {saveSettingsMutation.isPending ? "저장 중..." : "설정 저장"}
               </Button>
             </div>
           </form>
